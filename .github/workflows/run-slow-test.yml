@@ -1,0 +1,25 @@
+name: Run Slow Tests
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+on:
+  pull_request: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  run-tests:
+    name: Run tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Do the test
+        run: |
+          echo "Running tests"
+          sleep 10
+          echo "Tests successful"
