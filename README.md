@@ -6,4 +6,4 @@ This repo is to track down what's going on with the Aviator CLI and why it's dup
 Steps
 -----
 
-* Step 1
+* Step 0.5
