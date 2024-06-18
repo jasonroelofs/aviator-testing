@@ -5,8 +5,7 @@ merge_rules:
     - main
 
   preconditions:
-    use_github_mergeability: false
-    number_of_approvals: 1
+    use_github_mergeability: true
 
   # Publish the status comment when ready ready for review.
   status_comment:
