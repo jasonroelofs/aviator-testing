@@ -1,0 +1,92 @@
+merge_rules:
+  # Restrict the use of Aviator to Pull Requests targeting the
+  # 'main' branch.
+  base_branches:
+    - main
+
+  preconditions:
+    use_github_mergeability: true
+
+  # Publish the status comment when ready ready for review.
+  status_comment:
+    publish: ready
+
+  # Aviator will add the sticky comment and update it. This
+  # disables other comments that Aviator may add which are
+  # pretty noisy.
+  enable_comments: false
+
+  # Publish the `aviator/check` status as soon as a pull
+  # request is opened.
+  publish_status_check: always
+
+  # All status checks on the pull request to pass before being
+  # accepted into the merge queue.
+  require_all_checks_pass: true
+
+  # Once successfully merged, aviator will delete the branch
+  # of the pull request.
+  delete_branch: true
+
+  # In order to perform a priority merge, a reason must be
+  # provided in the GitHub comment. This can be provided
+  # with: /aviator merge --skip-line=<insert reason for skipping>
+  require_skip_line_reason: true
+
+  # Each pull request will be squashed into one commit.
+  merge_strategy:
+    name: squash
+
+  # The format here is slightly different than we had
+  # previously but it can be customized to match.
+  merge_commit:
+    use_title_and_body: true
+    strip_html_comments: true
+    include_coauthors: true
+
+  labels:
+    # Provides an alternative way to trigger merges.
+    trigger: aviator/merge
+    # Allows jumping to the front of the queue.
+    skip_line: aviator/priority
+    # the generic "blocked" label is here annoyingly vague.
+    merge_failed: aviator/blocked
+
+  # Parallel mode merges multiple pull requests into a `mq-bot-*`
+  # branch and opens a draft pull request. This approach will ensure
+  # all checks are triggered, conditional or not.
+  #
+  # Note that this is a a reductive description of how Parallel
+  # mode works. For full details on how Parallel Mode operates,
+  # please see: go/aviator/parallel-mode
+  merge_mode:
+    type: parallel
+    parallel_mode:
+      batch_size: 5
+      batch_max_wait_minutes: 2
+      max_parallel_builds: 2
+      # Parallel builds combined with requeue attempts can easily lead to
+      # recurring failures. Parallel builds seem like a better happy path
+      # so disable requeue attempts all together.
+      max_requeue_attempts: 0
+      # Our CI pipelines will timeout after set amounts of time but some
+      # other GitHub Apps (e.g. Chromatic App) may block indefinitely until
+      # manual action is taken.
+      #
+      # We aim to bypass all those cases but, for simplicity, this is set to
+      # the maximum time our CI will take + 1m (SemaphoreCI is 30m).
+      stuck_pr_timeout_mins: 31
+      stuck_pr_label: aviator/stuck
+      require_all_draft_checks_pass: true
+      # Fast forwarding ensures that the head commit of `mq-bot-*`
+      # branches and `main` are the same, allowing us to release
+      # based on a particular commits.
+      use_fast_forwarding: true
+
+scenarios:
+  - name: Remove 'aviator/blocked' label on update
+    trigger:
+      pull_request: synchronize
+    actions:
+      - github:
+          remove_label: 'aviator/blocked'
