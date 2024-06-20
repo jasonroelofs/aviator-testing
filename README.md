@@ -7,3 +7,4 @@ Steps
 -----
 
 * Step 1: Do Something
+* Step 2
