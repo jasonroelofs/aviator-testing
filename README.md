@@ -9,4 +9,4 @@ Steps
 * Step 1: Do Something
 * Step 2
 * ???
-* Make Money
+* Make Lots of Money
